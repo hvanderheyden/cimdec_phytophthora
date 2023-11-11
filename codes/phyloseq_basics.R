@@ -1,6 +1,5 @@
 ###### packages ######
 
-library("qiime2R") # devtools::install_github("jbisanz/qiime2R")
 library("phyloseq")
 library("readxl")      
 library("tibble")
@@ -20,7 +19,7 @@ setwd("C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Poole
 
 # ##### color legend:
 # Region 
-# Chaudière-Appalache: "#003f5c", 
+# Beauce: "#003f5c", 
 # Estrie: "#e18745", 
 # Québec: "#7baa68"
 
@@ -30,16 +29,18 @@ setwd("C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Poole
 # Healthy_plantation: "#999999"
 
 ##### create phyloseq object fom qiime2 outputs #####
-pooled<-qza_to_phyloseq(
-  features="C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/qiime2_latest/table.qza",
-  tree="C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/qiime2_latest/rooted-tree.qza",
-  taxonomy="C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/qiime2_Blast_latest/Blast_taxonomy.qza",
-  metadata = "C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/metadata_pooled2.tsv"
-)
+library("qiime2R") # devtools::install_github("jbisanz/qiime2R")
 
+pooled<-qza_to_phyloseq(
+  features="data/from_QIIME2/table.qza",
+  tree="data/from_QIIME2/rooted-tree.qza",
+  taxonomy="data/from_QIIME2/Blast_taxonomy.qza",
+  metadata = "data/oom_fir_metadata.tsv"
+)
 pooled
 
-# Following GB's advice I removed P. ramorum from the data,  ####
+# Because P. ramorum was used as a PCR positive control
+# we removed P. ramorum from the dataset
 
 badTaxa = c("0789711810c5ac7ca64435418f6365fb",
             "12de6547fe64fd5c1f6322d6a05d5227",
