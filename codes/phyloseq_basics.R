@@ -1,6 +1,5 @@
 ###### packages ######
 
-library("phyloseq")
 library("readxl")      
 library("tibble")
 library("vegan")
@@ -13,9 +12,7 @@ library("patchwork")
 library("ggpubr")
 library("plotROC")
 library("viridis")
-library("cowplot")
 
-setwd("C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/Manuscript")
 
 # ##### color legend:
 # Region 
@@ -41,6 +38,8 @@ pooled
 
 # Because P. ramorum was used as a PCR positive control
 # we removed P. ramorum from the dataset
+
+library("phyloseq")
 
 badTaxa = c("0789711810c5ac7ca64435418f6365fb",
             "12de6547fe64fd5c1f6322d6a05d5227",
@@ -77,18 +76,17 @@ pooled <- prune_taxa(goodTaxa, pooled)
 
 pooled
 
-library('microeco') # install.packages("microeco")
-library("file2meco") # install.packages("file2meco", repos = BiocManager::repositories())
-
-HV_2023_04_06 <- phyloseq2meco(pooled)
-
-saveRDS(HV_2023_04_06, file = "HV_2023_04_06.rds")
-saveRDS(pooled, file = "HV_2023_04_06_PS.rds")
-
 # verify files 
 sample_names(pooled)
 rank_names(pooled)
 sample_variables(pooled)
+
+#save the basic Phyloseq object
+saveRDS(pooled, file = "data/R_objects/pooled_phyloseq.rds")
+
+# read the saved phyloseq object
+pooled <- readRDS(file = "data/R_objects/pooled_phyloseq.rds")
+
 
 ######### Summary stats ########
 
@@ -118,6 +116,9 @@ Dep2<-plot_read_distribution(pooled, groups = "Status",
                       geom_vline(xintercept = 400, colour = "black", linetype="dashed")+
                       theme(legend.position="none")+
   labs(x = "Reads per samples", y = "Count")
+
+
+library("cowplot")
 
 depth<-plot_grid(Dep1+theme(legend.position="none"),
                   Dep2+theme(legend.position="none"), 
