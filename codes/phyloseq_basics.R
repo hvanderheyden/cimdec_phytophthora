@@ -1,30 +1,3 @@
-###### packages ######
-
-library("readxl")      
-library("tibble")
-library("vegan")
-library("DESeq2") # BiocManager::install("DESeq2")
-library("speedyseq") # remotes::install_github("mikemc/speedyseq") 
-
-
-library("patchwork")
-
-
-ape
-cowplot
-futile.logger
-ggplot2
-ggpubr
-ggthemes
-ggtree
-ggtreeExtra 
-MicrobiotaProcess
-permute
-phyloseq
-vegan  
-VennDiagram
-
-
 
 ##### create phyloseq object fom qiime2 outputs #####
 library("qiime2R") # devtools::install_github("jbisanz/qiime2R")

@@ -19,9 +19,7 @@
 #### 2. The R code used to import QIIME2 artifacts into phyloseq and perform analysis are provided in the codes/phyloseq_basics.R file. 
 #### 3. The R code used to perform the LEFSe analysis is provided in the codes/biomarker.R.
 #### 4. The R code used to perform the analysis of species cooccurence is provided in the codes/coocur_oom.R, whitch is used with the site_by_species.csv file.
-#### 5. 
-
-
+#### 5. Finally, the R code used to generate the tern plots is provided in the codes/tern_plots.R file. 
 
 ## Citation 
 ### Upcoming 
