@@ -84,10 +84,6 @@ sample_variables(pooled)
 #save the basic Phyloseq object
 saveRDS(pooled, file = "data/R_objects/pooled_phyloseq.rds")
 
-# read the saved phyloseq object
-pooled <- readRDS(file = "data/R_objects/pooled_phyloseq.rds")
-
-
 ######### Summary stats ########
 
 library(microbiome) # BiocManager::install("microbiome")
@@ -178,6 +174,8 @@ library(ggthemes)
 # Subset the soil samples  
 pooledN_soil <- subset_samples(pooledN, Type =="Soil")
 pooledN_soil
+
+saveRDS(pooledN_soil, file = "data/R_objects/pooledN_soil_phyloseq.rds")
   
 ### plot trees for Pythicaea ####
 # subset the Pythicaea for soil samples

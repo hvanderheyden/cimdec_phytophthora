@@ -1,12 +1,10 @@
 
-setwd("/volumes/HERVE_256/Cimdec_Phytophthora/pooled_analysis/qiime2")
-
 library("cowplot")
 library("ggplot2")  
 
 #read the data file
 
-stat_sum <- read.csv("/volumes/HERVE_256/Cimdec_Phytophthora/pooled_analysis/qiime2/run_summary.csv", 
+stat_sum <- read.csv("data/run_summary.csv", 
                      sep = ",", 
                      header = TRUE)
 
@@ -72,3 +70,6 @@ Summ_final<-plot_grid(Summ, ncol = 1, rel_heights = c(0.8, .05))
 Summ_final
 
 summary(stat_sum)
+
+ggsave(file="figures/figS1_summary_stat.pdf", 
+       width=8.3, height=4.2, units="in", dpi=300)
