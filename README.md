@@ -12,10 +12,6 @@
 
 ## Description 
 ### Here we provide data and R codes to perform the analysis presented in this study. 
-<<<<<<< HEAD
-=======
-### The pipeline used for taxonomic assignation was developed by DuceppeMO and can be found here: 
->>>>>>> c3ab2e2b813140e5b140dd29d570a3d8a9fdd912
 
 ### 1.The pipeline used for taxonomic assignment was developed by DuceppeMO and can be found here: 
 
