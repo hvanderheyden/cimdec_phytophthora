@@ -26,4 +26,4 @@
 ### Upcoming 
 
 ## Funding 
-### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food.
+#### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food.
