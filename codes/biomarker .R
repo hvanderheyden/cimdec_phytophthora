@@ -7,6 +7,7 @@ library("stringr")
 library("ggtree") # BiocManager::install("ggtree")
 library("ggtreeExtra") #install.packages("ggExtra")
 library('MicrobiotaProcess')
+library("stringr")
 
 set.seed(1024)
 deres <- diff_analysis(obj = pooledN_soil, 
@@ -56,4 +57,10 @@ ggplot(diff_ana_results_S,
   theme(legend.position="top")+
   xlab(bquote(Log[10](LDA)))+
   ylab("Indicator species")
+
+library("ggpubr")
+ggsave(file="figures/Fig6_LEFSe.pdf", 
+       width=6, height=4, units="in", dpi=300)
+
+
 
