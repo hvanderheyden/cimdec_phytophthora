@@ -2,7 +2,8 @@
 library("cooccur")
 library('ggplot2')
 
-site_by_species <- read.csv("C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper/Manuscript/site_by_species.csv", header=TRUE, sep=(";"))
+site_by_species <- read.csv("data/site_by_species.csv", 
+                            header=TRUE, sep=(";"))
 
 str(site_by_species)
 
@@ -10,22 +11,21 @@ row.names(site_by_species) <- site_by_species$X; site_by_species$X <- NULL
 
 head(site_by_species)
 
-
+set.seed(1024)
 cooccur.oom <- cooccur(site_by_species,
                       type = "spp_site",
                       true_rand_classifier=0.01,
                       thresh = TRUE,
                       spp_names = TRUE)
 
-saveRDS(cooccur.oom, file = "cooccur.oom.rds")
+saveRDS(cooccur.oom, file = "data/cooccur.oom.rds")
 cooccur.oom <- readRDS(file = "cooccur.oom.rds")
 
 summary(cooccur.oom)
 
-
 prob.table(cooccur.oom)
 
-write.csv(prob.table(cooccur.oom), 'prop_table.csv')
+write.csv(prob.table(cooccur.oom), 'data/prop_table.csv')
 
 ############################## TO ADJUST THE GRAPH PARAMS WE NEEDED TO MODIFY THE FUNCtION EACH TIME #############
 library('reshape2')
@@ -235,7 +235,7 @@ plot.cooccur <-
     
   }
 
-#############################################################
+
 #############################################################
 
 coocplot <- plot(cooccur.oom)
@@ -245,7 +245,7 @@ str(coocplot)
 
 coocplot$data
 
-write.csv(coocplot$data, 'coocplot.csv')
+write.csv(coocplot$data, 'data/coocplot.csv')
 
 #############################################################
 obs.v.exp <-
@@ -294,4 +294,11 @@ write.csv(pair$data, 'pairs.csv')
 
 library(patchwork)
 coocplot + 
-  inset_element(OBS_exp, left = 0, bottom = 0.55, right = 0.35, top = 1)
+  inset_element(OBS_exp, 
+                left = 0,
+                bottom = 0.55,
+                right = 0.35,
+                top = 1)
+
+ggsave(file="figures/FigS7_cooc.pdf", 
+       width=8.5, height=6.3, units="in", dpi=300)
