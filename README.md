@@ -5,3 +5,11 @@
 #### *Hervé Van der Heyden, Marc-Olivier Duceppe, Guillaume Charron, Philippe Tanguay, and Guillaume J. Bilodeau*
 
 ### Forests are threatened by many natural stressors intensified by climate change and anthropogenic activities, which tend to increase their susceptibility to pests and pathogens. Consequently, oomycetes-related forest decline or dieback cases are increasing in natural, urban, and agricultural landscapes. Christmas tree growers from Southern Québec, Canada, are experiencing root rot problems, with reported incidences up to 25%. In a previous study, seven Phytophthora spp. were associated with this root rot problem, but the overall diversity of oomycetes has not yet been investigated. Hence, in this study, we use a metabarcoding approach to provide an overview of the diversity, richness, and composition of the oomycetes community in fir plantations compared to surrounding natural forests. 
+
+![plot](https://github.com/hvanderheyden/cimdec_phytophthora/blob/main/figures/Graphical_abstract.png)
+*Figure 2. Overview of the analytical pipeline used in this study*
+
+## Description 
+### Here we provide R-codes and data to perform the analysis  
+
+https://github.com/duceppemo/QIIME2_ITS 
