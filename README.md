@@ -15,7 +15,9 @@
 
 ### 1.The pipeline used for taxonomic assignment was developed by DuceppeMO and can be found here: 
 
-https://github.com/duceppemo/QIIME2_ITS 
+https://github.com/duceppemo/QIIME2_ITS
+
+### Additionnal codes are provided in the 
 
 ### 2.
 
