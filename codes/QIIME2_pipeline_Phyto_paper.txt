@@ -1,0 +1,57 @@
+
+# QIIME2 pipeline for ITS 
+
+# https://github.com/duceppemo/QIIME2_ITS for installation and usage 
+
+# in order to use this pipeline, you have to have a qiime2 classifier available.
+#Here's how to build a classifier from sequences downloaded from genbank with the script train_ncbi_classifier_qiime2.py. 
+#That script takes care of downloading the sequences, the taxonomy and train the QIIME2 classifier. 
+#It takes as input a text file containing accession numbers (in data/accession_list.txt): 
+
+conda activate qiime2-2023.5 
+python train_ncbi_classifier_qiime2.py \
+    -q data/accession_list.txt\
+    -t 24 \
+    -o /home/herve/QIIME2_ITS/db_oom_cured \
+    -e hvanderheyden@phytodata.ca\
+    -a 9d796d9a62f8c32096181c59b5f2da4dd108
+
+########################## Run QIIME2 on IonTorrent sequencing data to obtain the rep-seq artifact ############
+
+python /home/herve/QIIME2_ITS/qiime2_its.py \
+-q qiime2-2023.2 \
+-i ~/fastq_pooled \
+-o ~/qiime2_latest \
+-m ~/metadata_pooled.tsv \
+-c ~/db_oom_cured/seq_ncbi.qza \
+--min-len 120 \
+-t 32 \
+-p 4 \
+-se \
+--extract-its1 \
+--taxa Oomycota
+
+############  Using BLAST to assign taxonomy  ############ 
+
+qiime feature-classifier classify-consensus-blast \
+--i-query ~/rep-seqs.qza \
+--i-reference-reads ~/seq.fasta.qza \
+--i-reference-taxonomy ~/db_oom_cured/taxonomy.txt.qza \
+--p-maxaccepts 1 \
+--p-perc-identity 0.77 \
+--p-strand 'both' \
+--p-query-cov 0.8 \
+--p-evalue 0.0001 \
+--p-min-consensus 0.77 \
+--p-unassignable-label 'k__Eukaryota;p__Oomycota;c__Stramenopiles' \
+--o-classification ~/BLAST_taxonomy.qza \
+--o-search-results ~/BLAST_results.qza
+
+# Finally, I renamed some species of the taxonomy to adjust for complex and/or cluster nomination (see table 1)
+# to convert modified taxonomy file from modified_taxonomy.tsv to taxonomy.qza
+
+qiime tools import \
+--type 'FeatureData[Taxonomy]' \
+--input-format TSVTaxonomyFormat \
+--input-path /media/herve/10TB/cimdec_phytophthora/Pooled_data/pooled/qiime2_Blast_latest/taxonomy.tsv \
+--output-path /media/herve/10TB/cimdec_phytophthora/Pooled_data/pooled/qiime2_Blast_latest/M-Blast_taxonomy.qza

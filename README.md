@@ -17,7 +17,7 @@
 
 https://github.com/duceppemo/QIIME2_ITS
 
-### Additionnal codes are provided in the 
+### The complete list of accessions used to train the QIIME2 classifier is provided in the data/accession_list.txt file, and the specific commands used are provided in the codes/QIIME2_pipeline_Phyto_paper.txt file. 
 
 ### 2.
 
