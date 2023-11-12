@@ -1,10 +1,9 @@
 
-library(coin)
-library(stringr)
-
 # read the saved phyloseq object
 pooled <- readRDS(file = "data/R_objects/pooledN_soil_phyloseq.rds")
 
+library("coin")
+library("stringr")
 library("ggtree") # BiocManager::install("ggtree")
 library("ggtreeExtra") #install.packages("ggExtra")
 library('MicrobiotaProcess')
