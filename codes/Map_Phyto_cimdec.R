@@ -10,19 +10,17 @@ library(ggplot2)
 library(ggspatial)
 library(ggrepel)
 
-setwd ("C:/Users/vanderheydenh/OneDrive - AGR-AGR/Projets/2023/Biovigilance/Pooled_paper")
-
 #################### MAPPING ######### ############################
-# transform the shpae files inot Geo JSON format to reduce the size of the file to plot 
+# transform the shape files into Geo JSON format to reduce the size of the file to plot 
 # create a /data folder in the working directory (dsn = "data")
 canada_raw = readOGR(dsn = "data", layer = "can", encoding = 'latin1') # 1
 canada_raw_json <- geojson_json(canada_raw) # 2
 canada_raw_sim <- ms_simplify(canada_raw_json) # 3
-geojson_write(canada_raw_sim, file = "data/canada_cd_sim.geojson") # 4
+geojson_write(canada_raw_sim, file = "data/MAP/data/canada_cd_sim.geojson") # 4
 
 #plotting the Canada MAP
 #the geo JSON file create above should be in the /data folder within the wd 
-canada_cd <- st_read("data/canada_cd_sim.geojson", quiet = TRUE) # 1
+canada_cd <- st_read("data/MAP/data/canada_cd_sim.geojson", quiet = TRUE) # 1
 crs_string = "+proj=lcc +lat_1=49 +lat_2=77 +lon_0=-91.52 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs" # 2
 
 # Define the maps' theme -- remove axes, ticks, borders, legends, etc.
@@ -126,28 +124,34 @@ villes <- st_as_sf(villes, coords = c("lng", "lat"), remove = FALSE,
 # Plot the maps####
 ggplot() +
   geom_sf(aes(), color = "gray60", size = 0.3, data = canada_cd) +
-  geom_sf(data = sf_cities_2019, aes(color= '#4A6C6F'), shape=20, size=5, alpha=0.9, show.legend ="point") +
-  geom_sf(data = sf_cities_2020, aes(color = '#A84268'), shape=20, size=5, alpha=0.9, show.legend ="point") +
-  geom_sf(data = sf_cities_2021, aes(color = '#FF5E5B'), shape=20, size=5, alpha=0.9, show.legend ="point")+
-  theme(legend.position = c(0, 1))+
+  geom_sf(data = sf_cities_2019, aes(color= '#4A6C6F'), shape=20, size=3, alpha=0.9, show.legend ="point") +
+  geom_sf(data = sf_cities_2020, aes(color = '#A84268'), shape=20, size=3, alpha=0.9, show.legend ="point") +
+  geom_sf(data = sf_cities_2021, aes(color = '#FF5E5B'), shape=20, size=3, alpha=0.9, show.legend ="point")+
   geom_sf(data = villes)+
   geom_text_repel(data = villes, aes(x = lng, y = lat, label = villes), 
                   fontface = "bold", 
                   nudge_x = c(0.2, -0.3, -1, -1, 0.5), 
                   nudge_y = c(-0.45, 0.5, 0.25, 0.5, 0.4)) +
-  coord_sf(xlim = c(-75, -65), ylim = c(45, 50), expand = TRUE) +
+  coord_sf(xlim = c(-75, -65), ylim = c(44.9, 48), expand = TRUE) +
   scale_fill_manual(values = map_colors) +
   guides(fill = "none") +
   annotation_scale(location = "bl", width_hint = 0.3) +
-  annotation_north_arrow(location = "tr", which_north = "true", 
+  annotation_north_arrow(location = "br", which_north = "true", 
                         style = north_arrow_nautical, 
-                         height = unit(5, "cm"),
-                         width = unit(5, "cm")) +
+                         height = unit(3, "cm"),
+                         width = unit(3, "cm")) +
   theme_map() +
   scale_color_manual(values=c("#4A6C6F", "#FF5E5B", "#A84268"), 
                      labels=c("Estrie", "Beauce", "Québec"), name = "")+
   theme(legend.background = element_rect(fill='transparent'),
     panel.grid.major = element_line(color = "white"),
-                legend.position = c(0.03, 0.81))+
-  theme(text = element_text(size = 20))
+                legend.position = c(0.8, 0.7))+
+  theme(legend.key=element_blank())+
+  theme(text = element_text(size = 14))
                 
+ggsave(file="figures/Fig1_Map.jpg", 
+       width=6, height=3.2, units="in", dpi=300)
+
+
+
+
