@@ -5,25 +5,26 @@ library("tibble")
 library("vegan")
 library("DESeq2") # BiocManager::install("DESeq2")
 library("speedyseq") # remotes::install_github("mikemc/speedyseq") 
-library("ape")
-library("ggstar")
-library("forcats")
+
+
 library("patchwork")
-library("ggpubr")
-library("plotROC")
-library("viridis")
 
 
-# ##### color legend:
-# Region 
-# Beauce: "#003f5c", 
-# Estrie: "#e18745", 
-# Québec: "#7baa68"
+ape
+cowplot
+futile.logger
+ggplot2
+ggpubr
+ggthemes
+ggtree
+ggtreeExtra 
+MicrobiotaProcess
+permute
+phyloseq
+vegan  
+VennDiagram
 
-# #### Status 
-# Diseased_plantation: "#990038"
-# Healthy_forest: "#01AED9"
-# Healthy_plantation: "#999999"
+
 
 ##### create phyloseq object fom qiime2 outputs #####
 library("qiime2R") # devtools::install_github("jbisanz/qiime2R")
@@ -37,8 +38,7 @@ pooled<-qza_to_phyloseq(
 pooled
 
 # Because P. ramorum was used as a PCR positive control
-# we removed P. ramorum from the dataset
-
+# ASVs associated with P. ramorum were removed from the dataset
 library("phyloseq")
 
 badTaxa = c("0789711810c5ac7ca64435418f6365fb",
@@ -119,7 +119,6 @@ Dep2<-plot_read_distribution(pooled, groups = "Status",
 
 
 library("cowplot")
-
 depth<-plot_grid(Dep1+theme(legend.position="none"),
                   Dep2+theme(legend.position="none"), 
                   align="vh",
@@ -131,8 +130,9 @@ depth<-plot_grid(Dep1+theme(legend.position="none"),
 depth_final<-plot_grid(depth, ncol = 1, rel_heights = c(0.8, .05))
 depth_final
 
-
-ggsave(file="depth_final.pdf", width=8, height=5, units="in", dpi=300)
+library("ggpubr")
+ggsave(file="figures/FigS2_depth_final.pdf", 
+       width=8, height=5, units="in", dpi=300)
 
 
 # Standardize number of reads in each sample using median sequencing depth ####
@@ -142,87 +142,45 @@ pooledN = transform_sample_counts(pooled, standf)
 
 summarize_phyloseq(pooledN)
 
-pooled_soil <- subset_samples(pooled, Type =="Soil")
-pooled_soil
-
-pooled_Root <- subset_samples(pooled, Type =="Root")
-pooled_Root
-
-pooled_Baiting <- subset_samples(pooled, Type =="Baiting")
-pooled_Baiting
-
-
-
-pooledN_soil <- subset_samples(pooledN, Type =="Soil")
-pooledN_soil
-
-pooledN_Root <- subset_samples(pooledN, Type =="Root")
-pooledN_Root
-
-pooledN_Baiting <- subset_samples(pooledN, Type =="Baiting")
-pooledN_Baiting
-
-########## Need to subset the PS_objects by Status for the network analysis ####
-
-pooledN_soil_dis <- subset_samples(pooledN_soil, Status =="Diseased_plantation")
-pooledN_soil_dis
-
-pooledN_soil_healthP <- subset_samples(pooledN_soil, Status =="Healthy_plantation")
-pooledN_soil_healthP
-
-pooledN_soil_healthF <- subset_samples(pooledN_soil, Status =="Healthy_forest")
-pooledN_soil_healthF
-
-
-# bar_plot ####
-
-test<-plot_bar(pooled, "Status", "Abundance", "Family") + 
-  geom_bar(aes(fill=Family), stat="identity", position="stack")+ 
-  facet_grid(.~Type, scales= "free_y")+
-  scale_fill_brewer("dark2")
-
-data_test<-(test$data)
-str(data_test)
-head(data_test)
-
-
-library(pivottabler)
-
-pt <- PivotTable$new()
-pt$addData(data_test)
-pt$addColumnDataGroups("Type")
-pt$addColumnDataGroups("Status")
-pt$addRowDataGroups("Order")
-pt$addRowDataGroups("Species")
-pt$defineCalculation(calculationName="TotalTrains", 
-                     summariseExpression="sum(Abundance)")
-pt$renderPivot()
-
-# not used
+# bar_plot of relative abundance by sample type ####
 library("ggtree") # BiocManager::install("ggtree")
 library("ggtreeExtra") #install.packages("ggExtra")
 library('MicrobiotaProcess') # BiocManager::install("MicrobiotaProcess")
 
-# you may need to detach microbiotaprocess 
-detach("package:MicrobiotaProcess")
-
 library(ggthemes)
 
-  classtaxa_g <- get_taxadf(obj=pooledN, taxlevel=6)
+  classtaxa_g <- get_taxadf(obj=pooled, taxlevel=6)
 
   fclass_genus <- ggbartax(obj=classtaxa_g, 
                            facetNames="Type", 
                            plotgroup=TRUE, 
-                           topn=11) +
+                           topn=15) +
     xlab(NULL) +
     ylab("Relative abundance (%)") +
-    guides(fill= guide_legend(keywidth = 0.5, keyheight = 0.5, ncol=4))
+    guides(fill= guide_legend(keywidth = 0.5, 
+                              keyheight = 0.5, 
+                              ncol=4))+
+    theme(legend.text=element_text(size=8))+
+    theme(axis.text.x=element_text(size=rel(1.2), angle=0,
+                                   hjust = 0.5))+
+    theme(axis.text.y=element_text(size=rel(1.2)))
   
   fclass_genus
   
+  ggsave(file="figures/Fig2_rel_abund.pdf", 
+         width=6, height=4, units="in", dpi=300)
+  
+# you may need to detach microbiotaprocess 
+  detach("package:MicrobiotaProcess")
+  
 #### plot tree using the tax_glom function to merge ASVs with same taxon ####
-
+  
+# Subset the soil samples  
+pooledN_soil <- subset_samples(pooledN, Type =="Soil")
+pooledN_soil
+  
 ### plot trees for Pythicaea ####
+# subset the Pythicaea for soil samples
   
 Soil_Pythiacae <- subset_taxa(pooledN_soil, Family =="Pythiaceae")
 rank_names(Soil_Pythiacae)
@@ -247,6 +205,11 @@ A1<-plot_tree(tax_glom(Soil_Pythiacae,
   facet_wrap(~Type, scales="free_x")
 A1
 
+# Subset the Baiting samples  
+pooledN_Baiting <- subset_samples(pooledN, Type =="Baiting")
+pooledN_Baiting
+
+# subset the Pythicaea for baiting samples
 Bait_Pythiacae <- subset_taxa(pooledN_Baiting, Family =="Pythiaceae")
 rank_names(Bait_Pythiacae)
 
@@ -270,6 +233,11 @@ B1<-plot_tree(tax_glom(Bait_Pythiacae,
   facet_wrap(~Type, scales="free_x")
 B1
 
+# Subset the Root samples  
+pooledN_Root <- subset_samples(pooledN, Type =="Root")
+pooledN_Root
+
+# subset the Pythicaea for Root samples
 Root_Pythiacae <- subset_taxa(pooledN_Root, Family =="Pythiaceae")
 rank_names(Root_Pythiacae)
 
@@ -297,6 +265,7 @@ legend_b <- get_legend(
   C1+ guides(color = guide_legend(nrow = 1)) +
       theme(legend.position = "bottom"))
 
+library("cowplot")
 Tree_1<-plot_grid(A1+theme(legend.position="none"),
           B1+theme(legend.position="none"), 
           C1+theme(legend.position="none"), 
@@ -305,11 +274,11 @@ Tree_1<-plot_grid(A1+theme(legend.position="none"),
           hjust = -1,
           vjust= 2,
           nrow = 1)
-        
 
 plot_grid(Tree_1, legend_b, ncol = 1, rel_heights = c(0.8, .05))
 
-ggsave(file="tree_final.pdf", width=11, height=8, units="in", dpi=300) 
+ggsave(file="figures/fig4_tree_Pythiacae.pdf", 
+       width=18, height=9, units="in", dpi=300)
 
 
 #### Plot tree for everything but Pythiacae ####  
@@ -397,58 +366,15 @@ Tree_1<-plot_grid(A2+theme(legend.position="none"),
 
 plot_grid(Tree_1, legend_b, ncol = 1, rel_heights = c(0.8, .05))
 
-################################### MicrobiotaProcess ###################
+ggsave(file="figures/fig5_tree_NO-Pythiacae.pdf", 
+       width=18, height=9, units="in", dpi=300)
 
-library("ggtree") # BiocManager::install("ggtree")
-library("ggtreeExtra") #install.packages("ggExtra")
-library('MicrobiotaProcess') # BiocManager::install("MicrobiotaProcess")
-library("tidytree") # install.packages("tidytree")
 
-# you need to you can detach a package
-detach("package:MicrobiotaProcess")
-
-# Alpha diversity -> microbiota process    #####
+# Alpha diversity for soil samples -> microbiota process    #####
 
 alphaobj <- get_alphaindex(pooledN_soil)
 alphaobj2<-as.data.frame(alphaobj)
 head(alphaobj2)
-
-write.csv(alphaobj2, "alpha_obj.csv")
-
-#############Pivot_table #####
-
-library(pivottabler)
-
-pt2 <- PivotTable$new()
-pt2$addData(alphaobj2)
-pt2$addRowDataGroups("Region")
-pt2$defineCalculation(calculationName="Mean", 
-                      summariseExpression="mean(Observe)")
-pt2$defineCalculation(calculationName="Median", 
-                     summariseExpression="median(Observe)")
-pt2$defineCalculation(calculationName="min", 
-                     summariseExpression="min(Observe)")
-pt2$defineCalculation(calculationName="SE", 
-                      summariseExpression="max(Observe)")
-pt2$renderPivot()
-
-
-pt1 <- PivotTable$new()
-pt1$addData(alphaobj2)
-pt1$addRowDataGroups("Status")
-pt1$defineCalculation(calculationName="Mean", 
-                      summariseExpression="mean(Observe)")
-pt1$defineCalculation(calculationName="Median", 
-                      summariseExpression="median(Observe)")
-pt1$defineCalculation(calculationName="min", 
-                      summariseExpression="min(Observe)")
-pt1$defineCalculation(calculationName="max", 
-                      summariseExpression="max(Observe)")
-pt1$defineCalculation(calculationName="count", 
-                      summariseExpression="n()")
-
-pt1$renderPivot()
-
 
 # ##### wilcoxon_test ######
 
@@ -490,155 +416,20 @@ pairwise.wilcox.test(alphaobj2$Shannon,
                      alphaobj2$Region, 
                      p.adjust.method = "hochberg")
 
-##### violon_plots (Status) ######
-
-Observe_status <- ggbox(alphaobj, 
-                 geom="violin", 
-                 factorNames="Status",   
-                 compare = TRUE,
-                 testmethod = "wilcox.test",
-                 signifmap = TRUE,
-                 indexNames="Observe")+ 
-  theme(aspect.ratio = 0.5)+
-  theme( legend.position="none")+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                             "#01AED9",
-                             "#999999",
-                             "#1B9E77", 
-                             "#000033", 
-                             "#FD9347"))
-
-Shannon_status<- ggbox(alphaobj, 
-              geom="violin", 
-              factorNames="Status",   
-              compare = TRUE, 
-              testmethod = "wilcox.test",
-              signifmap = TRUE,
-              indexNames="Shannon")+ 
-  theme(legend.position="Bottom")+
-  theme(aspect.ratio = 0.5)+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                             "#01AED9",
-                             "#999999",
-                             "#1B9E77", 
-                             "#000033", 
-                             "#FD9347"))
-                             
-
-Pielou_status<- ggbox(alphaobj, 
-                       geom="violin", 
-                       factorNames="Status",   
-                       compare = TRUE, 
-                       testmethod = "wilcox.test",
-                       signifmap = TRUE,
-                       indexNames="Pielou")+ 
-  theme(legend.position="Bottom")+
-  theme(aspect.ratio = 0.5)+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                                      "#01AED9",
-                                      "#999999",
-                                      "#1B9E77", 
-                                      "#000033", 
-                                      "#FD9347"))
-
-
-
-
-plot_grid(Observe_status+theme(legend.position="none"),
-          Shannon_status+theme(legend.position="none"),
-          Pielou_status+theme(legend.position="none"),
-                  align="vh",
-                  labels = c("A", "B", 'C'),
-                  hjust = -1,
-                  vjust= 3.5,
-                  ncol=1)
-
-
-##### violon_plots (Region) ######
-
-Observe_Region <- ggbox(alphaobj, 
-                        geom="violin", 
-                        factorNames="Region",   
-                        compare = TRUE,
-                        testmethod = "wilcox.test",
-                        signifmap = TRUE,
-                        indexNames="Observe")+ 
-  theme(aspect.ratio = 0.5)+
-  theme( legend.position="none")+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                                      "#01AED9",
-                                      "#999999",
-                                      "#1B9E77", 
-                                      "#000033", 
-                                      "#FD9347"))
-                                      
-Shannon_Region<- ggbox(alphaobj, 
-                       geom="violin", 
-                       factorNames="Region",   
-                       compare = TRUE, 
-                       testmethod = "wilcox.test",
-                       signifmap = TRUE,
-                       indexNames="Shannon")+ 
-  theme(legend.position="Bottom")+
-  theme(aspect.ratio = 0.5)+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                                      "#01AED9",
-                                      "#999999",
-                                      "#1B9E77", 
-                                      "#000033", 
-                                      "#FD9347"))
-                                      
-
-Pielou_Region<- ggbox(alphaobj, 
-                       geom="violin", 
-                       factorNames="Region",   
-                       compare = TRUE, 
-                       testmethod = "wilcox.test",
-                       signifmap = TRUE,
-                       indexNames="Pielou")+ 
-  theme(legend.position="Bottom")+
-  theme(aspect.ratio = 0.5)+
-  theme(strip.background = element_rect(colour=NA, fill="grey"))+
-  scale_fill_manual(values=c("#990038", 
-                                      "#01AED9",
-                                      "#999999",
-                                      "#1B9E77", 
-                                      "#000033", 
-                                      "#FD9347"))
-                                      
-
-
-
-plot_grid(Observe_Region+theme(legend.position="none"),
-          Shannon_Region+theme(legend.position="none"),
-          Pielou_Region+theme(legend.position="none"),
-          align="vh",
-          labels = c("A", "B", 'C'),
-          hjust = -1,
-          vjust= 3.5,
-          ncol=1)
-
-
 # ordination #####
-
-#method  = “total”, “max”, “frequency”, “normalize”, “range”, “rank”, “rrank”, “standardize”, “pa”, 
-# “chi.square”, “hellinger”, “log”, “clr”, “rclr”, “alr”
-
-#distmethod = "unifrac",  "wunifrac", "manhattan", "euclidean", "canberra", "bray", "kulczynsk"
 
 # If the phyloseq tree need to be 're-rooted':
 
+library("ape")
 ps_tree = phy_tree(pooledN_soil)
-sprintf("Is tree binary: %s", is.binary(ps_tree))
+sprintf("Is tree/ binary: %s", is.binary(ps_tree))
 phy_tree(pooledN_soil) = multi2di(ps_tree)
 sprintf("Is tree binary: %s", is.binary(phy_tree(pooledN_soil)))
 
-pcoares <- get_pcoa(obj=pooledN_soil, distmethod="unifrac", method="hellinger")
+library('MicrobiotaProcess') 
+pcoares <- get_pcoa(obj=pooledN_soil, 
+                    distmethod="wunifrac", 
+                    method="hellinger")
 
 # Visulizing the result by Status #####
 pcaplot1 <- ggordpoint(obj=pcoares, biplot=TRUE, speciesannot=FALSE,
@@ -676,6 +467,9 @@ pcaplot2 <- ggordpoint(obj=pcoares, pc=c(1, 3), biplot=TRUE, speciesannot=FALSE,
 
 pcaplot1 | pcaplot2
 
+ggsave(file="figures/Fig8_PCOA.pdf", 
+       width=8, height=3, units="in", dpi=300)
+
 ###### Visulizing the result by Region ####### 
 
 pcaplot3 <- ggordpoint(obj=pcoares, biplot=TRUE, speciesannot=FALSE,
@@ -712,6 +506,9 @@ pcaplot4 <- ggordpoint(obj=pcoares, pc=c(1, 3), biplot=TRUE, speciesannot=FALSE,
 
 pcaplot3 | pcaplot4
 
+ggsave(file="figures/FigS4_PCOA.pdf", 
+       width=8, height=3, units="in", dpi=300)
+
 ####Permutational Multivariate Analysis of Variance with vegan ADONIS #### 
 library(vegan)
 
@@ -731,144 +528,3 @@ adonis_pooledN_soil <- adonis2(distme ~ Status+Region+Year+Specie+Status*Region+
                        permutation=999,
                        parallel = 16)
 adonis_pooledN_soil
-
-##### Adonis for diseased plantations vs forest  ####
-diseased_forest<- subset_samples(pooledN_soil, Status !="Healthy_plantation")
-
-distmeDF <- get_dist(diseased_forest, distmethod ="wunifrac", method="hellinger")
-sampledaDF <- data.frame(sample_data(diseased_forest), check.names=FALSE)
-sampledaDF <- sampledaDF[match(colnames(as.matrix(distmeDF)),rownames(sampledaDF)),,drop=FALSE]
-sampledaDF$Status <- factor(sampledaDF$Status)
-
-set.seed(1024)
-adonis_DF <- adonis(distmeDF ~ Status, 
-                               data=sampledaDF, 
-                               permutation=9999)
-
-pairwise_p<-numeric()
-pairwise_p["DF"] <- adonis_DF[["aov.tab"]][["Pr(>F)"]][1]
-
-
-##### Adonis for healthy plantations vs forest  #####
-healthy_forest<- subset_samples(pooledN_soil, Status !="Diseased_plantation")
-
-distmeHF <- get_dist(healthy_forest, distmethod ="wunifrac", method="hellinger")
-sampledaHF <- data.frame(sample_data(healthy_forest), check.names=FALSE)
-sampledaHF <- sampledaHF[match(colnames(as.matrix(distmeHF)),rownames(sampledaHF)),,drop=FALSE]
-sampledaHF$Status <- factor(sampledaHF$Status)
-
-set.seed(1024)
-adonis_HF <- adonis(distmeHF ~ Status, 
-                               data=sampledaHF, 
-                               permutation=9999)
-adonis_HF
-
-pairwise_p["HF"] <- adonis_HF[["aov.tab"]][["Pr(>F)"]][1]
-
-##### Adonis for diseased vs healthy plantations ####
-diseased_healthy<- subset_samples(pooledN_soil, Status !="Healthy_forest")
-
-distmeDH <- get_dist(diseased_healthy, distmethod ="wunifrac", method="hellinger")
-sampledaDH <- data.frame(sample_data(diseased_healthy), check.names=FALSE)
-sampledaDH <- sampledaDH[match(colnames(as.matrix(distmeDH)),rownames(sampledaDH)),,drop=FALSE]
-sampledaDH$Status <- factor(sampledaDH$Status)
-
-set.seed(1024)
-adonis_DH <- adonis2(distmeDH ~ Status*Specie*Region, 
-                    data=sampledaDH, 
-                    permutation=9999)
-
-adonis_DH
-
-pairwise_p["D_H"] <- adonis_DH[["aov.tab"]][["Pr(>F)"]][1]
-
-p.adjust(pairwise_p, method="hochberg")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-library('microeco') # install.packages("microeco")
-library(file2meco) # install.packages("file2meco", repos = BiocManager::repositories())
-
-mecoP_D <- phyloseq2meco(pooledN_soil)
-
-t1 <- trans_abund$new(dataset = mecoP_D, taxrank = "Species", ntaxa = 60)
-t1$plot_heatmap(facet = "Type", xtext_keep = FALSE, withmargin = FALSE)
-
-mecoP_D_M <- mecoP_D$merge_samples(use_group = "Type")
-# dataset1 is a new microtable object
-# create trans_venn object
-t1 <- trans_venn$new(mecoP_D_M, 
-                     ratio = NULL)
-venn<-t1$plot_venn()
-venn
-
-######### 
-
-############# spiting diseased and healthy samples #######
-
-pooledN_diseased <- subset_samples(pooledN, 
-                                   Status_3 =="Diseased")
-pooledN_diseased
-
-pooledN_H <- subset_samples(pooledN, 
-                            Status_3 =="Healthy")
-pooledN_H
-
-pooledN_diseased_phyto <- subset_taxa(pooledN_diseased, 
-                                      Genus =="Phytophthora")
-
-pooledN_H_phyto <- subset_taxa(pooledN_H, 
-                               Genus =="Phytophthora")
-
-pooledN_H_phyto <- subset_samples(pooledN_H_phyto, 
-                               Type !="Root")
-
-
-
-glom4 <- tax_glom(pooledN, 
-                  taxrank = 'Species')
-
-View(glom4@tax_table@.Data)
-
-#Un diagramme de Venn a été utilisé pour répartir la distribution des Phytophthora spp. entre les différents types de sol.
-
-percentages4 <- psmelt(glom4)
-View(percentages4)
-str(percentages4)
-write.table(as.data.frame(percentages4), file = "percentage4.txt", sep = "\t")
-
-library(VennDiagram)
-vennlist <- get_vennlist(obj=pooledN_H_phyto, factorNames="Type")
-
-vennp <- venn.diagram(vennlist,
-                      height=5,
-                      width=5, 
-                      filename=NULL, 
-                      fill=c("#336600", "#663366"), #333366
-                      cat.col=c("#336600", "#663366"), #333366
-                      alpha = 0.45, 
-                      resolution = 600,
-                      fontfamily = "serif",
-                      fontface = "bold",
-                      cex = 0,
-                      cat.cex = 1.3,
-                      cat.default.pos = "outer",
-                      cat.dist=0.1,
-                      margin = 0.1, 
-                      lwd = 3,
-                      lty ='dotted',
-                      imagetype = "svg")
-grid::grid.draw(vennp)
