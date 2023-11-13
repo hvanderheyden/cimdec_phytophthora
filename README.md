@@ -15,6 +15,7 @@
 #### 1. The pipeline used for taxonomic assignment was developed by DuceppeMO and can be accessed at https://github.com/duceppemo/QIIME2_ITS. 
 
 #### The full list of accessions used to train the QIIME2 classifier is provided in the file data/accession_list.txt, and the specific commands used are provided in the file codes/QIIME2_pipeline_Phyto_paper.txt. The QIIME2 artifacts obtained are provided in the data/from_QIIME2 folder.
+#### Fastq files used in this study are available trough figshare (https://figshare.com/account/articles/24549865).
 
 #### 2. The R code used to import QIIME2 artifacts into phyloseq and perform the analysis is provided in the file codes/phyloseq_basics.R. 
 #### 3. The R code used to perform the LEFSe analysis is provided in the file codes/biomarker.R.
@@ -25,4 +26,4 @@
 #### Upcoming 
 
 ## Funding 
-#### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food.
+#### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food (19-011-2.2-C-PHYTO).
