@@ -22,7 +22,7 @@
 #### 5. Finally, the R code used to generate the tern plots is provided in the file codes/tern_plots.R.
 
 ## Citation 
-### Upcoming 
+#### Upcoming 
 
 ## Funding 
 #### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food.
