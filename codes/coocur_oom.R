@@ -290,7 +290,7 @@ str(pair)
 
 pair$data
 
-write.csv(pair$data, 'pairs.csv')
+write.csv(pair$data, 'data/pairs.csv')
 
 library(patchwork)
 coocplot + 
