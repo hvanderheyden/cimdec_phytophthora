@@ -38,7 +38,7 @@ qiime feature-classifier classify-consensus-blast \
 --i-reference-reads ~/seq.fasta.qza \
 --i-reference-taxonomy ~/db_oom_cured/taxonomy.txt.qza \
 --p-maxaccepts 1 \
---p-perc-identity 0.77 \
+--p-perc-identity 0.8 \
 --p-strand 'both' \
 --p-query-cov 0.8 \
 --p-evalue 0.0001 \
