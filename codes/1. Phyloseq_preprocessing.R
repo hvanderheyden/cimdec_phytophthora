@@ -6,7 +6,7 @@ library("phyloseq")
 pooled<-qza_to_phyloseq(
   features="data/from_QIIME2/table.qza",
   tree="data/from_QIIME2/rooted-tree.qza",
-  taxonomy="data/from_QIIME2/2Blast_taxonomy.qza",
+  taxonomy="data/from_QIIME2/jan_2024_blast_taxonomy.qza",
   metadata = "data/oom_fir_metadata.tsv"
 )
 pooled
@@ -43,7 +43,9 @@ tax.cleanM<-tax.cleanM %>%
 # Actualize taxonomy for certain accessions  
 tax.cleanM<-tax.cleanM %>% 
   mutate(Species=str_replace(Species, "CAL-2011b", "chlamydospora"))%>%
-  mutate(Species=str_replace(Species, "sp. 1050", "sp. raspberry"))%>%
+  mutate(Species=str_replace(Species, "sp. P1050", "sp. raspberry"))%>%
+  mutate(Species=str_replace(Species, "aff. sansomeana", "sansomeana"))%>%
+  mutate(Species=str_replace(Species, "sp. chlamydospora", "chlamydospora"))
 
 # Concatenation of the species in clusters and 
 
@@ -65,7 +67,7 @@ tax.cleanM<-tax.cleanM %>%
   mutate(Species=str_replace(Species, "acerina", "citricola complex"))%>%
   mutate(Species=str_replace(Species, "plurivora", "citricola complex"))
 
-# P. nemorosa cluster (clade 3)
+# P. nemorosa cluster (clade 3a)
 tax.cleanM<-tax.cleanM %>% 
   mutate(Species=str_replace(Species, "nemorosa", "nemorosa cluster"))%>%
   mutate(Species=str_replace(Species, "ilicis", "nemorosa cluster"))%>%
@@ -85,16 +87,17 @@ tax.cleanM<-tax.cleanM %>%
   mutate(Species=str_replace(Species, "humicola", "inundata cluster"))%>%
   mutate(Species=str_replace(Species, "condilina", "inundata cluster"))
 
-# P. gonapodyides cluster (clade 6b)
+# P. chlamydospora cluster (clade 6b)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "gonapodyides", "gonapodyides cluster"))%>%
-  mutate(Species=str_replace(Species, "borealis", "gonapodyides cluster"))%>%
-  mutate(Species=str_replace(Species, "mississippiae", "gonapodyides cluster"))
+  mutate(Species=str_replace(Species, "Phytophthora chlamydospora", "Phytophthora chlamydospora cluster"))%>%
+  mutate(Species=str_replace(Species, "borealis", "chlamydospora cluster"))%>%
+  mutate(Species=str_replace(Species, "mississippiae", "chlamydospora cluster"))%>%
+  mutate(Species=str_replace(Species, "gonapodyides", "chlamydospora cluster"))
 
 # P. megasperma cluster (clade 6b)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "megasperma", "megasperma cluster"))%>%
-  mutate(Species=str_replace(Species, "crassamura", "megasperma cluster"))
+  mutate(Species=str_replace(Species, "Phytophthora megasperma", "Phytophthora megasperma cluster"))%>%
+  mutate(Species=str_replace(Species, "Phytophthora crassamura", "Phytophthora megasperma cluster"))
 
 # P. europaea cluster (clade 7a)
 tax.cleanM<-tax.cleanM %>% 
@@ -122,25 +125,36 @@ tax.cleanM<-tax.cleanM %>%
 
 # G. attrantheridium complex (clade F)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "attrantheridium", "attrantheridium complex"))%>%
-  mutate(Species=str_replace(Species, "balticum", "attrantheridium complex"))
+  mutate(Species=str_replace(Species, "Globisporangium attrantheridium", "Globisporangium_attrantheridium complex"))%>%
+  mutate(Species=str_replace(Species, "Pythium sp. balticum", "Globisporangium_attrantheridium complex"))
+
+tax.cleanM<-tax.cleanM %>%
+  mutate(Genus = if_else(Species == "Globisporangium_attrantheridium complex", "Globisporangium", Genus))
 
 # G. irregulare complex (clade F)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "irregulare", "irregulare complex"))%>%
-  mutate(Species=str_replace(Species, "cryptoirregulare", "irregulare complex"))%>%
-  mutate(Species=str_replace(Species, "cylindrosporum", "irregulare complex"))
+  mutate(Species=str_replace(Species, "Globisporangium irregulare", "Globisporangium irregulare complex"))%>%
+  mutate(Species=str_replace(Species, "Globisporangium cryptoirregulare", "Globisporangium irregulare complex"))%>%
+  mutate(Species=str_replace(Species, "Globisporangium cylindrosporum", "Globisporangium irregulare complex"))
+
+# G. Sylvaticum complex (clade F)
+tax.cleanM<-tax.cleanM %>%
+  mutate(Species=str_replace(Species, "Globisporangium sylvaticum", "Globisporangium sylvaticum complex"))%>%
+  mutate(Species=str_replace(Species, "Globisporangium terrestre", "Globisporangium sylvaticum complex"))
+
+tax.cleanM<-tax.cleanM %>%
+  mutate(Genus = if_else(Species == "Globisporangium irregulare complex", "Globisporangium", Genus))
 
 # G. heterothallicum complex (clade J)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "heterothallicum", "heterothallicum complex"))%>%
-  mutate(Species=str_replace(Species, "glomeratum", "heterothallicum complex"))
+  mutate(Species=str_replace(Species, "Globisporangium heterothallicum", "Globisporangium heterothallicum complex"))%>%
+  mutate(Species=str_replace(Species, "Globisporangium glomeratum", "Globisporangium heterothallicum complex"))
 
 # G. megalacanthum complex (clade J)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "megalacanthum", "megalacanthum complex"))%>%
-  mutate(Species=str_replace(Species, "polymastum", "megalacanthum complex"))%>%
-  mutate(Species=str_replace(Species, "glomeratum", "megalacanthum complex"))
+  mutate(Species=str_replace(Species, "Globisporangium megalacanthum", "Globisporangium megalacanthum complex"))%>%
+  mutate(Species=str_replace(Species, "Globisporangium polymastum", "Globisporangium megalacanthum complex")) %>%
+  mutate(Species=str_replace(Species, "Globisporangium buismaniae", "Globisporangium megalacanthum complex"))
 
 #####################################
 ########## Pythium species ##########
@@ -183,17 +197,17 @@ tax.cleanM<-tax.cleanM %>%
 # P. minus complex (clade E2)
 tax.cleanM<-tax.cleanM %>% 
   mutate(Species=str_replace(Species, "minus", "minus complex"))%>%
-  mutate(Species=str_replace(Species, "pleroticum", "minus complex"))
+  mutate(Species=str_replace(Species, "aff. pleroticum", "minus complex"))
 
 
 #####################################
 ###### Elongisporangium species #####
 #####################################
 
-# P. undulatum complex (clade H)
+# E. undulatum complex (clade H)
 tax.cleanM<-tax.cleanM %>% 
-  mutate(Species=str_replace(Species, "undulatum", "undulatum complex"))%>%
-  mutate(Species=str_replace(Species, "dimorphum", "undulatum complex"))
+  mutate(Species=str_replace(Species, "Elongisporangium undulatum", "Elongisporangium undulatum complex"))%>%
+  mutate(Species=str_replace(Species, "Elongisporangium dimorphum", "Elongisporangium undulatum complex"))
 
 # replace original tax_table with the clean tax_table 
 
@@ -236,6 +250,7 @@ badTaxa = c("0789711810c5ac7ca64435418f6365fb",
             "e7e247458bf3b54c57e19fcb005bef93",
             "ff9a1f5dc04b12ace376d1b33ff1cd2d"
             )
+
 goodTaxa <- setdiff(taxa_names(pooled), badTaxa)
 pooled <- prune_taxa(goodTaxa, pooled)
 
@@ -246,5 +261,65 @@ sample_names(pooled)
 rank_names(pooled)
 sample_variables(pooled)
 
+######################################################################################
+######### Summary stats ########
+
+library(microbiome) # BiocManager::install("microbiome")
+library(microbiomeutilities) #remotes::install_github("microsud/microbiomeutilities")
+
+summarize_phyloseq(pooled)
+
+Dep1<-plot_read_distribution(pooled, groups = "Status", 
+                             plot.type = "histogram")+
+  theme_biome_utils()+
+  scale_x_continuous(trans='log10',limits=c(1, 1000000))+
+  scale_fill_manual(values=c("#111111"))+
+  geom_vline(xintercept = 400, colour = "black", linetype="dashed")+
+  theme(legend.position="none")+
+  labs(x = "", y = "Count")
+
+pooled <- prune_samples(sample_sums(pooled) >= 400, pooled)
+
+summarize_phyloseq(pooled)
+
+Dep2<-plot_read_distribution(pooled, groups = "Status", 
+                             plot.type = "histogram")+
+  theme_biome_utils()+
+  scale_x_continuous(trans='log10', limits=c(1, 1000000))+
+  scale_fill_manual(values=c("#111111"))+ 
+  geom_vline(xintercept = 400, colour = "black", linetype="dashed")+
+  theme(legend.position="none")+
+  labs(x = "Reads per samples", y = "Count")
+
+
+library("cowplot")
+depth<-plot_grid(Dep1+theme(legend.position="none"),
+                 Dep2+theme(legend.position="none"), 
+                 align="vh",
+                 labels = c("A", "B"),
+                 hjust = -1,
+                 vjust= 2,
+                 nrow = 2)
+
+depth_final<-plot_grid(depth, ncol = 1, rel_heights = c(0.8, .05))
+depth_final
+
+library("ggpubr")
+ggsave(file="figures/FigS2_depth_final.pdf", 
+       width=8, height=5, units="in", dpi=300)
+
 #save the basic Phyloseq object
 saveRDS(pooled, file = "data/R_objects/pooled_phyloseq.rds")
+
+###############################################################################
+# Standardize number of reads in each sample using median sequencing depth ####
+total = median(sample_sums(pooled))
+standf = function(x, t=total) round(t * (x / sum(x)))
+pooledN = transform_sample_counts(pooled, standf)
+
+summarize_phyloseq(pooledN)
+
+#save the basic Phyloseq object
+saveRDS(pooledN, file = "data/R_objects/pooledN_phyloseq.rds")
+
+

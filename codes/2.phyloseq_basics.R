@@ -1,142 +1,117 @@
 
-##### create phyloseq object fom qiime2 outputs #####
-library("qiime2R") # devtools::install_github("jbisanz/qiime2R")
-
-pooled<-qza_to_phyloseq(
-  features="data/from_QIIME2/table.qza",
-  tree="data/from_QIIME2/rooted-tree.qza",
-  taxonomy="data/from_QIIME2/Blast_taxonomy.qza",
-  metadata = "data/oom_fir_metadata.tsv"
-)
-pooled
-
-# Because P. ramorum was used as a PCR positive control
-# ASVs associated with P. ramorum were removed from the dataset
 library("phyloseq")
+library("tidyverse")
 
-badTaxa = c("0789711810c5ac7ca64435418f6365fb",
-            "12de6547fe64fd5c1f6322d6a05d5227",
-            "161ff56a7342614f6ef4b8edf0a842db",
-            "16add5903a825067d9ff71ca6fe38c5d",
-            "17b6c8b48385f2a636be7740b8b511f4",
-            "2c80d4b1b2029a973ba049a285ccfda1",
-            "3295670d82066ee3a561e94073a7edc5",
-            "3abb831e13ad2705665fcc47aff54887",
-            "4ed05997f8e24927ed9e11bcb033d8bf",
-            "4fb40bedcea0ceed7ccf0558244ccf89",
-            "4fd790b2f8577717ed3ab4d05d96cc80",
-            "5119b64c0df5a69d4816db6c02dea414",
-            "65511ffe4fb30d148be5a536f2f94245",
-            "676940d284db09340a2ca892707a3535",
-            "6fe439d356df2d3999cf92353a1c06de",
-            "74bfc4a34d427c08ed09913f55688db5",
-            "75d11632dd44fef7a3aecaaa5bd46fec",
-            "7b11f7761104a66e79c36c2ee5a53908",
-            "928a575752e68f7a6f1718e562c064ad",
-            "92c733f04e60297354ac09cff9c0a9f5",
-            "9b6d7b7fe6df6a1ddcd31f51f3d32b6b",
-            "a0338fd9a4d185a6bd8002606c610554",
-            "a3893768727a77b236d2e94f3ff1e58d",
-            "c253e538354f29f62863d8a4c0565ede",
-            "c491f8a59eaadc5b3f91957811f04ae9",
-            "cc2ee63e92bb2d8869626d4ddbf5e8ba",
-            "e3a03b0bc3007108138f5422fc2ca183",
-            "e7e247458bf3b54c57e19fcb005bef93",
-            "ff9a1f5dc04b12ace376d1b33ff1cd2d"
-            )
-goodTaxa <- setdiff(taxa_names(pooled), badTaxa)
-pooled <- prune_taxa(goodTaxa, pooled)
+pooledN<-read_rds("data/R_objects/pooledN_phyloseq.rds")
 
-pooled
-
-# verify files 
-sample_names(pooled)
-rank_names(pooled)
-sample_variables(pooled)
-
-#save the basic Phyloseq object
-saveRDS(pooled, file = "data/R_objects/pooled_phyloseq.rds")
-
-######### Summary stats ########
-
-library(microbiome) # BiocManager::install("microbiome")
-library(microbiomeutilities) #remotes::install_github("microsud/microbiomeutilities")
-
-summarize_phyloseq(pooled)
-
-Dep1<-plot_read_distribution(pooled, groups = "Status", 
-                       plot.type = "histogram")+
-                       theme_biome_utils()+
-                       scale_x_continuous(trans='log10',limits=c(1, 1000000))+
-                       scale_fill_manual(values=c("#111111"))+
-                       geom_vline(xintercept = 400, colour = "black", linetype="dashed")+
-                       theme(legend.position="none")+
-  labs(x = "", y = "Count")
-
-pooled <- prune_samples(sample_sums(pooled) >= 400, pooled)
-
-summarize_phyloseq(pooled)
-
-Dep2<-plot_read_distribution(pooled, groups = "Status", 
-                      plot.type = "histogram")+
-                      theme_biome_utils()+
-                      scale_x_continuous(trans='log10', limits=c(1, 1000000))+
-                      scale_fill_manual(values=c("#111111"))+ 
-                      geom_vline(xintercept = 400, colour = "black", linetype="dashed")+
-                      theme(legend.position="none")+
-  labs(x = "Reads per samples", y = "Count")
-
-
-library("cowplot")
-depth<-plot_grid(Dep1+theme(legend.position="none"),
-                  Dep2+theme(legend.position="none"), 
-                  align="vh",
-                  labels = c("A", "B"),
-                  hjust = -1,
-                  vjust= 2,
-                  nrow = 2)
-
-depth_final<-plot_grid(depth, ncol = 1, rel_heights = c(0.8, .05))
-depth_final
-
-library("ggpubr")
-ggsave(file="figures/FigS2_depth_final.pdf", 
-       width=8, height=5, units="in", dpi=300)
-
-
-# Standardize number of reads in each sample using median sequencing depth ####
-total = median(sample_sums(pooled))
-standf = function(x, t=total) round(t * (x / sum(x)))
-pooledN = transform_sample_counts(pooled, standf)
-
-summarize_phyloseq(pooledN)
-
+###############################################################################
 # bar_plot of relative abundance by sample type ####
-library("ggtree") # BiocManager::install("ggtree")
-library("ggtreeExtra") #install.packages("ggExtra")
-library('MicrobiotaProcess') # BiocManager::install("MicrobiotaProcess")
+pooledN_dat <- psmelt(pooledN)
 
-library(ggthemes)
+str(pooledN_dat)
 
-  classtaxa_g <- get_taxadf(obj=pooled, taxlevel=6)
-  
-  
+predefined_Genus = c("Globisporangium",
+                     "Pythium",
+                     "Saprolegnia",
+                     "Phytophthora",
+                     "Phytopythium",
+                     "Elongisporangium",
+                     "Leptolegnia",
+                     "Peronospora",
+                     "Achlya",
+                     "Pythiopsis",
+                     "Aphanomyces")
 
-  fclass_genus <- ggbartax(obj=classtaxa_g, 
-                           facetNames="Type", 
-                           plotgroup=TRUE, 
-                           topn=15)
+#################################### 
+
+library("tidyverse")
+library("ggtext")
+library("dplyr")
+
+pooledN_dat <- pooledN_dat %>%
+  mutate(Genus = case_when(
+    Genus %in% 
+      predefined_Genus ~ Genus,  # Keep valid species as is
+    TRUE ~ "Other"  # Replace other species with "other"
+  ))
+
+otu_rel_abund <- pooledN_dat %>%
+  group_by(Type) %>%
+  mutate(rel_abund = Abundance / sum(Abundance)) %>%
+  ungroup() %>%
+  select(-Abundance) %>%
+  pivot_longer(c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"),
+               names_to="level",
+               values_to="taxon")
+
+
+###################################
+
+Type_abund<-otu_rel_abund %>%
+  filter(level=="Genus") %>%
+  group_by(Type, taxon) %>%
+  summarize(rel_abund = sum(rel_abund), .groups="drop") %>%
+  group_by(Type, taxon) %>%
+  summarize(mean_rel_abund = 100*mean(rel_abund), .groups="drop") %>%
+  mutate(taxon = factor(taxon, 
+                        levels=c("Globisporangium",
+                                 "Pythium",
+                                 "Saprolegnia",
+                                 "Phytophthora",
+                                 "Phytopythium",
+                                 "Elongisporangium",
+                                 "Leptolegnia",
+                                 "Peronospora",
+                                 "Achlya",
+                                 "Pythiopsis",
+                                 "Aphanomyces", 
+                                 "Other")))
+
+summary <- Type_abund %>% 
+  group_by(Type, taxon) %>%
+  summarize(mean_rel_abund) %>% 
+  pivot_wider(names_from = Type, values_from = mean_rel_abund);summary
+
+
+get_cols <- function (n){
+  col <- c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3",
+           "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd",
+           "#ccebc5", "#ffed6f")
   
-  fclass_genus$data
+  col2 <- c("#1f78b4", "#ffff33", "#c2a5cf", "#ff7f00", "#810f7c",
+            "#a6cee3", "#006d2c", "#4d4d4d", "#8c510a", "#d73027",
+            "#78c679", "#7f0000", "#41b6c4", "#e7298a", "#54278f")
   
-  
-  
+  col3 <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
+            "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a",
+            "#ffff99", "#b15928")
+  colorRampPalette(col2)(n)
+}
+
+# plot the stacked bar chart 
+PooledN_stacked<-ggplot(data=Type_abund, 
+                        aes(x=Type, 
+                            y=mean_rel_abund, 
+                            fill=taxon)) +
+  theme_bw()+
+  geom_col(colour = "black", width=0.8, linewidth=0.1) +
+  theme(legend.title=element_blank())+
+  labs(x=NULL,
+       y="Relative Abundance (%)") +
+  theme(legend.text = element_text(face="italic"))+
+  scale_y_continuous(expand=c(0,0))+
+  scale_fill_manual(values=get_cols(12))+
+  theme(legend.position="bottom")+
+  guides(fill= guide_legend(keywidth = 0.6, 
+                            keyheight = 0.7, 
+                            ncol=3))+
+  theme(axis.text.x=element_text(size=rel(1.2), hjust = 0.5))+
+  theme(axis.text.y=element_text(size=rel(1.2)));PooledN_stacked
+
   ggsave(file="figures/Fig2_rel_abund.pdf", 
-         width=6, height=4, units="in", dpi=300)
-  
-# you may need to detach microbiotaprocess 
-  detach("package:MicrobiotaProcess")
-  
+         width=4.7, height=5, units="in", dpi=300)
+
+#############################################################################  
 #### plot tree using the tax_glom function to merge ASVs with same taxon ####
   
 # Subset the soil samples  
@@ -227,11 +202,11 @@ C1<-plot_tree(tax_glom(Root_Pythiacae,
   facet_wrap(~Type, scales="free_x")
 C1
 
+library("cowplot")
 legend_b <- get_legend(
   C1+ guides(color = guide_legend(nrow = 1)) +
       theme(legend.position = "bottom"))
 
-library("cowplot")
 Tree_1<-plot_grid(A1+theme(legend.position="none"),
           B1+theme(legend.position="none"), 
           C1+theme(legend.position="none"), 
@@ -251,7 +226,7 @@ ggsave(file="figures/fig4_tree_Pythiacae.pdf",
 
 Soil_other <- subset_taxa(pooledN_soil, Family !="Pythiaceae")
 
-A2<-plot_tree(tax_glom(Soil_other, 
+A12<-plot_tree(tax_glom(Soil_other, 
                        taxrank="Species"),
               method = "sampledodge",
               ladderize="left",
@@ -269,11 +244,11 @@ A2<-plot_tree(tax_glom(Soil_other,
                                        "#01AED9",
                                        "#999999"))+
                                          facet_wrap(~Type, scales="free_x")
-A2
+A12
 
 Bait_other <- subset_taxa(pooledN_Baiting, Family !="Pythiaceae")
 
-B2<-plot_tree(tax_glom(Bait_other, 
+B12<-plot_tree(tax_glom(Bait_other, 
                        taxrank="Species"),
               method = "sampledodge",
               ladderize="left",
@@ -291,12 +266,12 @@ B2<-plot_tree(tax_glom(Bait_other,
                                        "#01AED9",
                                        "#999999"))+
                                          facet_wrap(~Type, scales="free_x")
-B2
+B12
 
 
 Root_other <- subset_taxa(pooledN_Root, Family !="Pythiaceae")
 
-C2<-plot_tree(tax_glom(Root_other, 
+C12<-plot_tree(tax_glom(Root_other, 
                        taxrank="Species"),
               method = "sampledodge",
               ladderize="left",
@@ -314,15 +289,15 @@ C2<-plot_tree(tax_glom(Root_other,
                                        "#01AED9",
                                        "#999999"))+
                                          facet_wrap(~Type, scales="free_x")
-C2
+C12
 
-legend_b <- get_legend(
-  C2+ guides(color = guide_legend(nrow = 1)) +
+legend_c <- get_legend(
+  C12+ guides(color = guide_legend(nrow = 1)) +
     theme(legend.position = "bottom"))
 
-Tree_1<-plot_grid(A2+theme(legend.position="none"),
-                  B2+theme(legend.position="none"), 
-                  C2+theme(legend.position="none"), 
+Tree_1<-plot_grid(A12+theme(legend.position="none"),
+                  B12+theme(legend.position="none"), 
+                  C12+theme(legend.position="none"), 
                   align="vh",
                   labels = c("A", "B", "C"),
                   hjust = -1,
@@ -330,7 +305,7 @@ Tree_1<-plot_grid(A2+theme(legend.position="none"),
                   nrow = 1)
 
 
-plot_grid(Tree_1, legend_b, ncol = 1, rel_heights = c(0.8, .05))
+plot_grid(Tree_1, legend_c, ncol = 1, rel_heights = c(0.8, .05))
 
 ggsave(file="figures/fig5_tree_NO-Pythiacae.pdf", 
        width=18, height=9, units="in", dpi=300)
