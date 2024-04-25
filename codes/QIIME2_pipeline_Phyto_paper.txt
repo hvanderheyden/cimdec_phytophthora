@@ -47,11 +47,4 @@ qiime feature-classifier classify-consensus-blast \
 --o-classification ~/BLAST_taxonomy.qza \
 --o-search-results ~/BLAST_results.qza
 
-# Finally, I renamed some species of the taxonomy to adjust for complex and/or cluster nomination (see table 1)
-# to convert modified taxonomy file from modified_taxonomy.tsv to taxonomy.qza
 
-qiime tools import \
---type 'FeatureData[Taxonomy]' \
---input-format TSVTaxonomyFormat \
---input-path /media/herve/10TB/cimdec_phytophthora/Pooled_data/pooled/qiime2_Blast_latest/taxonomy.tsv \
---output-path /media/herve/10TB/cimdec_phytophthora/Pooled_data/pooled/qiime2_Blast_latest/M-Blast_taxonomy.qza
