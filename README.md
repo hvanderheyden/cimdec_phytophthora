@@ -23,7 +23,7 @@
 #### 5. Finally, the R code used to generate the tern plots is provided in the file codes/tern_plots.R.
 
 ## Citation 
-#### Upcoming 
+#### Van der Heyden, H., Duceppe, M.-O., Charron, G., Tanguay, P., & Bilodeau, G. J. (2024). Oomycete communities are influenced by land use and disease status in Christmas tree production in Southern Québec, Canada. Environmental DNA, 6, e529. https://doi.org/10.1002/edn3.529
 
 ## Funding 
 #### This study was supported in part by a grant in the Cellule d'innovation des methodologies de diagnostic des ennemis de cultures from the Prime-Vert funding program of the Québec Ministry of Agriculture, Fisheries and Food (19-011-2.2-C-PHYTO).
